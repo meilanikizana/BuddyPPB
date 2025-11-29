@@ -18,8 +18,19 @@ import java.util.List;
 
 public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalViewHolder> {
 
-    /* Membandingkan list lama dengan list baru (Menggantikan NotifyDataSetChanged) */
     private final ArrayList<Journal> listJournal = new ArrayList<>();
+
+    /* ====== CLICK CALLBACK ====== */
+    public interface OnItemClickCallback {
+        void onItemClicked(Journal journal);
+    }
+
+    private OnItemClickCallback onItemClickCallback;
+
+    public void setOnItemClickCallback(OnItemClickCallback callback) {
+        this.onItemClickCallback = callback;
+    }
+    /* ============================ */
 
     public void setListJournal(List<Journal> listJournal) {
         JournalDiffCallback diffCallback = new JournalDiffCallback(this.listJournal, listJournal);
@@ -31,13 +42,15 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
 
     @Override
     public JournalViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ItemJournalBinding binding = ItemJournalBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        ItemJournalBinding binding = ItemJournalBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false
+        );
         return new JournalViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(JournalViewHolder holder, int position) {
-        holder.bind(listJournal.get(position));
+        holder.bind(listJournal.get(position), onItemClickCallback);
     }
 
     @Override
@@ -53,15 +66,26 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.JournalV
             this.binding = binding;
         }
 
-        public void bind(Journal journal) {
+        public void bind(Journal journal, OnItemClickCallback callback) {
             binding.tvItemTitle.setText(journal.getTitle());
+
+            // Image
             Uri imageUri = Uri.parse(journal.getImage());
             Glide.with(binding.imgItemImage.getContext())
                     .load(imageUri)
                     .placeholder(R.drawable.default_image_buddy)
                     .into(binding.imgItemImage);
+
+            // Description & Timestamp
             binding.tvItemDesc.setText(journal.getDescription());
             binding.tvTimestamp.setText(journal.getTimestamp());
+
+            // CLICK
+            binding.getRoot().setOnClickListener(v -> {
+                if (callback != null) {
+                    callback.onItemClicked(journal);
+                }
+            });
         }
     }
 }

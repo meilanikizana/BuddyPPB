@@ -7,22 +7,33 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
-import java.util.List;
 
+import java.util.List;
 @Dao
 public interface JournalDao {
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insert(Journal journal);
+    void insertJournal(Journal journal);
 
     @Update
-    void update(Journal journal);
+    void updateJournal(Journal journal);
 
     @Delete
-    void delete(Journal journal);
+    void deleteJournal(Journal journal);
 
-    @Query("SELECT * from journal ORDER BY id ASC")
+    @Query("SELECT * FROM journal ORDER BY id DESC")
     LiveData<List<Journal>> getAllJournal();
 
-    @Query("SELECT * from journal where id = :id")
-    LiveData<Journal> getJournalById(String id);
+    @Query("SELECT * FROM journal WHERE id = :id")
+    Journal getJournalById(int id);
+
+    @Query("SELECT id FROM journal ORDER BY initialTimestamp DESC LIMIT 1")
+    LiveData<Integer> getNewestJournalId();
+
+    @Query("UPDATE journal SET isAnalyzed = :isAnalyzed WHERE id = :id")
+    void updateIsAnalyzed(int id, boolean isAnalyzed);
+
+    @Insert
+    long insertJournalReturnId(Journal journal);
+
 }

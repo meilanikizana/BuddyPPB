@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".app"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,6 +13,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BuddyPPB"
         tools:targetApi="31">
+        <activity
+            android:name=".HistoryJournalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ResultJournalActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".DetailJournalActivity"
             android:exported="true" />

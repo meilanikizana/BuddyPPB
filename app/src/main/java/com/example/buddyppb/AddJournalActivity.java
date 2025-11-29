@@ -109,7 +109,6 @@ public class AddJournalActivity extends AppCompatActivity {
         // Observe save result
         journalViewModel.getSaveResult().observe(this, isSuccess -> {
             if (isSuccess) {
-                navigateToDetailJournalPage();
             } else {
                 Toast.makeText(this, "Failed to save journal.", Toast.LENGTH_SHORT).show();
             }
@@ -148,14 +147,39 @@ public class AddJournalActivity extends AppCompatActivity {
     }
 
     private void saveJournal() {
+        String title = binding.etJournalTitle.getText().toString();
+        String content = binding.etJournalContent.getText().toString();
+        String image = currentImageUri != null ? currentImageUri.toString() : "";
+
         Journal journal = new Journal();
-        journal.setTitle(binding.etJournalTitle.getText().toString());
-        journal.setImage(currentImageUri != null ? currentImageUri.toString() : "");
-        journal.setDescription(binding.etJournalContent.getText().toString());
+        journal.setTitle(title);
+        journal.setImage(image);
+        journal.setDescription(content);
         journal.setTimestamp(DateHelper.getCurrentDate());
 
-        journalViewModel.insert(journal);
+        // SIMPAN SEKALI SAJA
+        journalViewModel.insertJournalWithCallback(journal, insertedJournal -> {
+
+            String today = DateHelper.getCurrentDate();
+            journalViewModel.writeJournal(today);
+
+
+            // Masukkan ke history
+            journalViewModel.addJournalHistory(today, title);
+
+//            // Update streak (WAJIB)
+//            journalViewModel.writeJournal(today);
+
+            // Lanjut ke detail
+            Intent intent = new Intent(AddJournalActivity.this, DetailJournalActivity.class);
+            intent.putExtra(DetailJournalActivity.EXTRA_JOURNAL, insertedJournal);
+            startActivity(intent);
+            finish();
+        });
+
     }
+
+
 
     @Override
     protected void onDestroy() {
