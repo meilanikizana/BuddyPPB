@@ -48,9 +48,11 @@
     <string name="ayo_buat_jurnalmu_sekarang">Ayo Buat Jurnalmu Sekarang!</string>
     <string name="desc_journal">Ekspresikan Harimu dengan Cerita</string>
 
-    <string name="feeling_ask">Bagaimana suasana hatimu hari ini?</string>
+    <string name="feeling_ask">Bagaimana suasana hatimu hari ini,</string>
     <string name="happy">Gembira</string>
     <string name="soso">Biasa</string>
     <string name="worry">Gelisah</string>
     <string name="sad">Sedih</string>
+    <string name="nama_user">[Nama User]</string>
+    <string name="tanda_seru">!</string>
 </resources>

@@ -8,7 +8,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
+import com.example.buddyppb.data.datastore.UserModel;
+import com.example.buddyppb.data.datastore.UserPreference;
 import com.example.buddyppb.databinding.ActivityJournalBinding;
 
 public class JournalActivity extends AppCompatActivity {
@@ -16,6 +17,8 @@ public class JournalActivity extends AppCompatActivity {
     private ActivityJournalBinding binding;
     private JournalAdapter journalAdapter;
     private JournalViewModel journalViewModel;
+    private UserPreference userPreference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +26,11 @@ public class JournalActivity extends AppCompatActivity {
 
         binding = ActivityJournalBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        userPreference = new UserPreference(this);
+        UserModel user = userPreference.getUser();
+
+        binding.userName.setText(user.getName());
 
         // RecyclerView Setup
         journalAdapter = new JournalAdapter();
@@ -46,6 +54,10 @@ public class JournalActivity extends AppCompatActivity {
         });
 
         // Button mulai jurnal
+        binding.journalCard.setOnClickListener(v ->
+                startActivity(new Intent(this, AddJournalActivity.class))
+        );
+
         binding.btnStartJournal.setOnClickListener(v ->
                 startActivity(new Intent(this, AddJournalActivity.class))
         );
