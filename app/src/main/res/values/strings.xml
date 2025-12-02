@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Buddy</string>
+    <string name="home">Beranda</string>
     <string name="streak_jurnal">Jurnal Streak</string>
     <string name="integer">%i</string>
     <string name="your_journal">Jurnal Kamu</string>
@@ -45,4 +46,11 @@
     <string name="highest_streak">Streak Tertinggi</string>
     <string name="history_journal">Riwayat Jurnal</string>
     <string name="ayo_buat_jurnalmu_sekarang">Ayo Buat Jurnalmu Sekarang!</string>
+    <string name="desc_journal">Ekspresikan Harimu dengan Cerita</string>
+
+    <string name="feeling_ask">Bagaimana suasana hatimu hari ini?</string>
+    <string name="happy">Gembira</string>
+    <string name="soso">Biasa</string>
+    <string name="worry">Gelisah</string>
+    <string name="sad">Sedih</string>
 </resources>
