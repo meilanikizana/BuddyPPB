@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="skip">Lewati</string>
+    <string name="buddy_halo">Buddy Halo</string>
+    <string name="yuk_mulai">Yuk mulai!</string>
+    <string name="buddy_story">Buddy Story</string>
+    <string name="start_now">Mulai Sekarang!</string>
+    <string name="buddy_obat">Buddy Obat</string>
+    <string name="welcome">Selamat Datang di Buddy!</string>
+    <string name="welcome_desc">Disini kamu bebas berekspresi! Tidak perlu mengkhawatirkan apapun, Buddy akan selalu ada bersama kamu.</string>
+    <string name="onboarding1_title">Ekspresikan Beragam Perasaanmu</string>
+    <string name="onboarding1_desc">Buddy siap menemani kamu di berbagai perasaan, baik senang, sedih, cemas, dan lainnya.</string>
+    <string name="onboarding2_title">Ruang Aman untukmu Bercerita</string>
+    <string name="onboarding2_desc">Semua tulisanmu adalah milikmu seutuhnya. Jadikan ini tempat pribadimu untuk jujur pada diri sendiri, tanpa perlu khawatir akan dinilai.</string>
+    <string name="onboarding3_title">Ceritakan Hatimu di Jurnal</string>
+    <string name="onboarding3_desc">Tempat yang aman untuk ceritakan isi hatimu. Senang maupun sedih Buddy akan selalu setia bersamamu!</string>
+</resources>
