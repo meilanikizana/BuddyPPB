@@ -1,12 +1,16 @@
 package com.example.buddyppb;
 
+import static com.example.buddyppb.DetailJournalActivity.EXTRA_JOURNAL;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
+import androidx.lifecycle.Observer;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -27,6 +31,9 @@ public class AddJournalActivity extends AppCompatActivity {
     private ActivityAddJournalBinding binding;
     private JournalViewModel journalViewModel;
     private Uri currentImageUri = null;
+    private Boolean isUpdate = false;
+    private Boolean isAnalyzed = false;
+    private Journal journal = null;
 
     private ActivityResultLauncher<PickVisualMediaRequest> launcherGallery;
     private ActivityResultLauncher<Intent> uCropLauncher;
@@ -79,6 +86,18 @@ public class AddJournalActivity extends AppCompatActivity {
         ViewModelFactory factory = ViewModelFactory.getInstance(getApplication());
         journalViewModel = new ViewModelProvider(this, factory).get(JournalViewModel.class);
 
+        journal = getIntent().getParcelableExtra(EXTRA_JOURNAL);
+        if (journal != null) {
+            isUpdate = true;
+            binding.etJournalTitle.setText(journal.getTitle());
+            binding.etJournalContent.setText(journal.getDescription());
+            currentImageUri = Uri.parse(journal.getImage());
+            isAnalyzed = journal.isAnalyzed();
+            showImage();
+        } else {
+            journal = new Journal();
+        }
+
         // Title color opacity logic
         binding.etJournalTitle.setTextColor(ContextCompat.getColor(this, R.color.blue_70));
         binding.etJournalTitle.addTextChangedListener(new TextWatcher() {
@@ -109,23 +128,44 @@ public class AddJournalActivity extends AppCompatActivity {
         // Observe save result
         journalViewModel.getSaveResult().observe(this, isSuccess -> {
             if (isSuccess) {
+                navigateToDetailJournalPage();
             } else {
                 Toast.makeText(this, "Failed to save journal.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+
+
     private void navigateToDetailJournalPage() {
-        String title = binding.etJournalTitle.getText().toString();
-        String description = binding.etJournalContent.getText().toString();
-        String imageUri = currentImageUri != null ? currentImageUri.toString() : "";
+        journalViewModel.getNewestJournalId().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer journalId) {
+                String title = binding.etJournalTitle.getText().toString();
+                String description = binding.etJournalContent.getText().toString();
+                String imageUri = currentImageUri.toString();
+                long initialTimestamp = System.currentTimeMillis();
+                String timestamp = "";
+                boolean isAnalyzed = false;
+                Journal journal = new Journal(
+                        journalId,
+                        title,
+                        description,
+                        imageUri,
+                        initialTimestamp,
+                        timestamp,
+                        isAnalyzed
+                );
 
-        Intent intent = new Intent(this, DetailJournalActivity.class);
-        intent.putExtra("title", title);
-        intent.putExtra("description", description);
-        intent.putExtra("imageUri", imageUri);
+                showLoading(false);
+                Intent intent = new Intent(AddJournalActivity.this, DetailJournalActivity.class);
+                intent.putExtra(DetailJournalActivity.EXTRA_JOURNAL, journal);
+                startActivity(intent);
+                finish();
 
-        startActivity(intent);
+                journalViewModel.writeJournal(Long.toString(initialTimestamp));
+            }
+        });
     }
 
     private void startGallery() {
@@ -148,38 +188,83 @@ public class AddJournalActivity extends AppCompatActivity {
 
     private void saveJournal() {
         String title = binding.etJournalTitle.getText().toString();
-        String content = binding.etJournalContent.getText().toString();
-        String image = currentImageUri != null ? currentImageUri.toString() : "";
+        String image = null;
+        if (currentImageUri != null) {
+            image = currentImageUri.toString();
+        }
+        String description = binding.etJournalContent.getText().toString();
+        Long initialTimestamp;
+        if (isUpdate) {
+            initialTimestamp = journal != null ? journal.getInitialTimestamp() : null;
+        } else {
+            initialTimestamp = System.currentTimeMillis();
+        }
+        String timestamp;
+        if (isUpdate) {
+            timestamp = "Diperbarui pada " + DateHelper.getCurrentDate();
+        } else {
+            timestamp = DateHelper.getCurrentDate();
+        }
 
-        Journal journal = new Journal();
-        journal.setTitle(title);
-        journal.setImage(image);
-        journal.setDescription(content);
-        journal.setTimestamp(DateHelper.getCurrentDate());
-
-        // SIMPAN SEKALI SAJA
-        journalViewModel.insertJournalWithCallback(journal, insertedJournal -> {
-
-            String today = DateHelper.getCurrentDate();
-            journalViewModel.writeJournal(today);
-
-
-            // Masukkan ke history
-            journalViewModel.addJournalHistory(today, title);
-
-//            // Update streak (WAJIB)
-//            journalViewModel.writeJournal(today);
-
-            // Lanjut ke detail
-            Intent intent = new Intent(AddJournalActivity.this, DetailJournalActivity.class);
-            intent.putExtra(DetailJournalActivity.EXTRA_JOURNAL, insertedJournal);
-            startActivity(intent);
-            finish();
-        });
-
+        if (title.isEmpty()) {
+            binding.etJournalTitle.setError(getString(R.string.empty_journal_title));
+        } else if (description.isEmpty()) {
+            binding.etJournalContent.setError(getString(R.string.empty_journal_description));
+        } else if (image == null) {
+            showToast(getString(R.string.empty_journal_image));
+        } else {
+            showLoading(true);
+            if (isUpdate) {
+                Journal updatedJournal = null;
+                if (journal != null) {
+                    updatedJournal = new Journal(
+                            journal.getId(),
+                            title,
+                            image,
+                            description,
+                            initialTimestamp,
+                            timestamp,
+                            journal.isAnalyzed()
+                    );
+                }
+                journalViewModel.updateJournal(updatedJournal);
+                if (updatedJournal != null && updatedJournal.isAnalyzed()) {
+                    journalViewModel.deleteResultJournal(updatedJournal.getId());
+                    journalViewModel.analyzeStatusUpdate(updatedJournal.getId(), false);
+                }
+                showToast(getString(R.string.journal_updated));
+            } else {
+                Journal newJournal = null;
+                if (journal != null) {
+                    newJournal = new Journal(
+                            0,
+                            title,
+                            image,
+                            description,
+                            initialTimestamp,
+                            timestamp,
+                            false
+                    );
+                }
+                journalViewModel.insertJournal(newJournal);
+                journalViewModel.addJournalHistory(
+                        newJournal != null ? newJournal.getTimestamp() : null,
+                        newJournal != null ? newJournal.getTitle() : null
+                );
+                showToast(getString(R.string.journal_saved));
+            }
+        }
     }
 
-
+    private void showLoading(boolean isLoading) {
+        if (isLoading) {
+            binding.progressIndicator.setVisibility(View.VISIBLE);
+            binding.progressIndicator.show();
+        } else {
+            binding.progressIndicator.setVisibility(View.GONE);
+            binding.progressIndicator.hide();
+        }
+    }
 
     @Override
     protected void onDestroy() {

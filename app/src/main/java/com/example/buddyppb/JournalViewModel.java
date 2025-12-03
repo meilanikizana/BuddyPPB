@@ -10,10 +10,12 @@ import com.example.buddyppb.data.Journal;
 import com.example.buddyppb.data.JournalStreak;
 import com.example.buddyppb.data.ResultJournal;
 import com.example.buddyppb.helper.DateHelper;
+
+import org.threeten.bp.LocalDate;
+
 import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import org.threeten.bp.LocalDate;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -62,6 +64,10 @@ public class JournalViewModel extends AndroidViewModel {
         });
     }
 
+    public LiveData<Integer> getNewestJournalId() {
+        return mJournalRepository.getNewestJournalId();
+    }
+
     public void insertJournal(Journal journal) {
         executor.execute(() -> {
             try {
@@ -92,6 +98,12 @@ public class JournalViewModel extends AndroidViewModel {
         executor.execute(() -> mJournalRepository.updateIsAnalyzed(id, isAnalyzed));
     }
 
+    public void deleteJournal(Journal journal) {
+        executor.execute(() -> {
+            mJournalRepository.deleteJournal(journal);
+        });
+    }
+
     public void saveResultJournal(ResultJournal resultJournal) {
         executor.execute(() -> {
             boolean isSaved = mJournalRepository.isResultJournalSaved(resultJournal.getJournalId());
@@ -116,8 +128,11 @@ public class JournalViewModel extends AndroidViewModel {
         executor.execute(() -> mJournalRepository.insertJournalHistory(new JournalEntry(date, title)));
     }
 
-    public void writeJournal(String date) {
+    public void writeJournal(String initialDate) {
         executor.execute(() -> {
+            long timestamp = Long.parseLong(initialDate);
+            String date = DateHelper.convertTimestampToDate(timestamp);
+
             // LANGSUNG PAKAI date YANG SUDAH "yyyy-MM-dd"
             mJournalRepository.writeJournal(date);
 
@@ -127,11 +142,9 @@ public class JournalViewModel extends AndroidViewModel {
         });
     }
 
-
     public LiveData<List<JournalEntry>> getAllJournalsHistory() {
         return mJournalRepository.getAllJournalsHistory();
     }
-
 
     public void getStreakData() {
         executor.execute(() -> {

@@ -26,6 +26,8 @@
     <string name="back_alert_description">Jika kembali sekarang, kamu akan kehilangan cerita yang sudah kamu buat.</string>
     <string name="continue_journal">Lanjutkan Cerita</string>
     <string name="delete_journal_alert">Jurnal yang telah dihapus tidak dapat dikembalikan lagi. Apakah kamu yakin ingin menghapus jurnal ini?</string>
+    <string name="option_delete_yes">Hapus</string>
+    <string name="cancel_delete">Tidak</string>
     <string name="empty_journal_title">Judul jurnal tidak boleh kosong</string>
     <string name="empty_journal_description">Konten jurnal tidak boleh kosong</string>
     <string name="empty_journal_image">Gambar jurnal tidak boleh kosong</string>

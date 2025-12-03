@@ -39,7 +39,6 @@ public class JournalRepository {
 
     public void insertJournal(Journal journal) {
         executorService.execute(() -> mJournalDao.insertJournal(journal));
-
     }
 
     public void deleteJournal(Journal journal) {
@@ -100,8 +99,6 @@ public class JournalRepository {
             Log.d("STREAK", "New streak saved: " + newStreak);
         });
     }
-
-
 
     public JournalStreak getStreakData(String date) {
 

@@ -2,18 +2,25 @@ package com.example.buddyppb;
 
 import static com.example.buddyppb.helper.JournalAnalyzerHelper.journalAnalyzerHelper;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.buddyppb.data.Journal;
 import com.example.buddyppb.data.ResultJournal;
 import com.example.buddyppb.databinding.ActivityDetailJournalBinding;
+
 import android.app.Application;
 import android.content.Context;
+import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.bumptech.glide.Glide;
 import com.example.buddyppb.helper.ViewUtils;
 
@@ -44,18 +51,17 @@ public class DetailJournalActivity extends AppCompatActivity {
         journalViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance(new Application()))
                 .get(JournalViewModel.class);
 
-// ViewModel
+        // ViewModel
         journalViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance(getApplication()))
                 .get(JournalViewModel.class);
 
-// 1. Coba ambil parcelable (untuk setelah ADD)
+        // 1. Coba ambil parcelable (untuk setelah ADD)
         journal = getIntent().getParcelableExtra(EXTRA_JOURNAL);
 
         if (journal != null) {
             // langsung tampilkan data tanpa ambil dari database
             showDetail(journal);
-        }
-        else {
+        } else {
             // 2. Kalau parcelable null → berarti dipanggil dari RecyclerView
             int journalId = getIntent().getIntExtra("journal_id", -1);
 
@@ -65,7 +71,7 @@ public class DetailJournalActivity extends AppCompatActivity {
             }
         }
 
-
+        binding.btnDelete.setOnClickListener(v -> alertDeleteJournal());
         binding.btnBack.setOnClickListener(v -> finish());
         binding.fabEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddJournalActivity.class);
@@ -74,16 +80,6 @@ public class DetailJournalActivity extends AppCompatActivity {
             finish();
         });
 
-//        if (journal != null) {
-//            Glide.with(this)
-//                    .load(journal.getImage())
-//                    .placeholder(R.drawable.default_image_buddy)
-//                    .into(binding.ivJournalCover);
-//            binding.tvJournalTitle.setText(journal.getTitle());
-//            binding.tvJournalContent.setText(journal.getDescription());
-//        }
-
-//        binding.btnDelete.setOnClickListener(v -> alertDeleteJournal());
         binding.btnBack.setOnClickListener(v -> finish());
         binding.fabEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddJournalActivity.class);
@@ -91,6 +87,27 @@ public class DetailJournalActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    private void alertDeleteJournal() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.alert_delete_journal, null);
+        TextView btnDelete = dialogView.findViewById(R.id.btn_delete);
+        TextView btnCancel = dialogView.findViewById(R.id.btn_cancel);
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        btnDelete.setOnClickListener(v -> {
+            if (journal != null) {
+                journalViewModel.deleteJournal(journal);
+            }
+            finish();
+        });
+
+        btnCancel.setOnClickListener(v -> alertDialog.dismiss());
+        alertDialog.show();
     }
 
     @Override
@@ -101,7 +118,6 @@ public class DetailJournalActivity extends AppCompatActivity {
             observeDetailJournal();
         }
     }
-
 
     private void observeDetailJournal() {
         journalViewModel.getDetailJournal().observe(this, journalResult -> {
@@ -137,13 +153,12 @@ public class DetailJournalActivity extends AppCompatActivity {
         setupAnalyzeButton(journal);
     }
 
-
     private void setupAnalyzeButton(Journal journal) {
         if (journal.isAnalyzed()) {
             binding.btnAnalyze.setText(getString(R.string.see_result));
             binding.btnAnalyze.setOnClickListener(v -> {
                 showLoading(true);
-                showAnalyzeResult();
+                showAnalyzeResult(journal);
             });
         } else {
             binding.btnAnalyze.setText(getString(R.string.analisis_jurnal));
@@ -155,7 +170,7 @@ public class DetailJournalActivity extends AppCompatActivity {
         }
     }
 
-    private void showAnalyzeResult() {
+    private void showAnalyzeResult(Journal journal) {
         showLoading(true);
 
         journalViewModel.getResultJournalLiveData().observe(this, resultJournal -> {
@@ -191,7 +206,6 @@ public class DetailJournalActivity extends AppCompatActivity {
         for (int i = 0; i < sentimentScoresFloat.length; i++) {
             sentimentScores[i] = sentimentScoresFloat[i];
         }
-
 
         double negativityScore = sentimentScores[0];
         double positivityScore = sentimentScores[1];
@@ -233,7 +247,7 @@ public class DetailJournalActivity extends AppCompatActivity {
     }
 
     private void saveAndMoveToResult() {
-        if (journal != null && journal.getId() >0) {
+        if (journal != null && journal.getId() > 0) {
             journalViewModel.analyzeStatusUpdate(journal.getId(), true);
         }
 
@@ -262,27 +276,6 @@ public class DetailJournalActivity extends AppCompatActivity {
         intent.putExtra(ResultJournalActivity.EXTRA_NEGATIVE_WORDS, negativeWordsString);
         startActivity(intent);
     }
-
-//    private void alertDeleteJournal() {
-//        View dialogView = LayoutInflater.from(this).inflate(R.layout.alert_delete_journal, null);
-//        TextView btnDelete = dialogView.findViewById(R.id.btn_delete);
-//        TextView btnCancel = dialogView.findViewById(R.id.btn_cancel);
-//
-//        AlertDialog alertDialog = new AlertDialog.Builder(this)
-//                .setView(dialogView)
-//                .setCancelable(false)
-//                .create();
-//
-//        btnDelete.setOnClickListener(v -> {
-//            if (journal != null) {
-//                journalViewModel.deleteJournal(journal);
-//            }
-//            finish();
-//        });
-//
-//        btnCancel.setOnClickListener(v -> alertDialog.dismiss());
-//        alertDialog.show();
-//    }
 
     private void showLoading(boolean isLoading) {
         if (isLoading) {

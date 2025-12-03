@@ -19,7 +19,6 @@ public class JournalActivity extends AppCompatActivity {
     private JournalViewModel journalViewModel;
     private UserPreference userPreference;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
