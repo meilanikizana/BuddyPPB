@@ -27,6 +27,7 @@ public class OnboardingActivity extends AppCompatActivity implements View.OnClic
         if (v != null && v.getId() == R.id.btn_mulai) {
             Intent intent = new Intent(this, JournalActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 }

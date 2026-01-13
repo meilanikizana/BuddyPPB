@@ -32,7 +32,7 @@ public class AddJournalActivity extends AppCompatActivity {
     private JournalViewModel journalViewModel;
     private Uri currentImageUri = null;
     private Boolean isUpdate = false;
-    private Boolean isAnalyzed = false;
+    private Boolean isAnalyzed;
     private Journal journal = null;
 
     private ActivityResultLauncher<PickVisualMediaRequest> launcherGallery;
@@ -134,8 +134,6 @@ public class AddJournalActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     private void navigateToDetailJournalPage() {
         journalViewModel.getNewestJournalId().observe(this, new Observer<Integer>() {
